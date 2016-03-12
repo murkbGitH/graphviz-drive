@@ -127,23 +127,44 @@ function utf8_to_b64(str) {
     return window.btoa( unescape(encodeURIComponent( str )) );
 }
 
+var editor = ace.edit("editor");
+var parser = new DOMParser();
 var worker;
 var result;
 
 function drawGraph() {
-    var parser = new DOMParser();
+    console.log("drawGraph called");
+    if (worker) {
+        worker.terminate();
+    }
+    worker = new Worker("worker.js");
 
-    var params = {
-        src: document.getElementById('editor').value,
+    var arg = {
+        src: editor.getSession().getDocument().getValue(),
         options: {
             engine: 'dot',
             format: 'svg'
         }
     };
-    result = Viz(params.src, params.options);
-    //console.log(result);
 
-    var graph = document.getElementById('graph');
-    var svg = parser.parseFromString(result, "image/svg+xml");
-    graph.appendChild(svg.documentElement);
+    worker.onmessage = function(e) {
+        result = e.data;
+        var graph = document.getElementById('graph');
+        var svgarea = graph.firstChild; // graph.querySelector('svg');
+        if (svgarea) {
+            svgarea.parentNode.removeChild(svgarea);
+        }
+        var svg = parser.parseFromString(result, "image/svg+xml");
+        graph.appendChild(svg.documentElement);
+    }
+    worker.onerror = function(e) {
+        console.error(e);
+    }
+    worker.postMessage(arg);
 }
+
+editor.getSession().setMode("ace/mode/dot");
+editor.on("change", function() {
+    drawGraph();
+});
+drawGraph();
