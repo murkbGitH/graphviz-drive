@@ -6,11 +6,6 @@
       <!-- Optional theme -->
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
 
-      <!-- Latest compiled and minified JavaScript -->
-     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-    <script src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
-    <script src="./viz.1.3.0.js"></script>
     <style>
         .container { width: auto; }
         .vcenter {
@@ -78,29 +73,31 @@
     </style>
   </head>
   <body>
-    <div id="authorize-div" style="display: none">
-      <span>Authorize access to Drive API</span>
-      <!--Button for the user to click to initiate auth sequence -->
-      <button id="authorize-button" onclick="handleAuthClick(event)">
-        Authorize
-      </button>
-    </div>
     <div class="container">
+        <div id="authorize-div" style=>
+            <span>Authorize access to Drive API</span>
+            <!--Button for the user to click to initiate auth sequence -->
+            <button id="authorize-button" onclick="handleAuthClick(event)">
+                Authorize
+            </button>
+        </div>
         <div class="row bg-info">
             <div class="row-height">
-                <div class="col-sm-9 col-middle col-height">
-                    <strong>
-                        Untitled.dot
-                    </strong>
+                <div class="col-sm-9 col-middle col-height"><strong id="fileName">Untitled.dot</strong></div>
+                <div class="col-sm-1 col-height col-middle">
+                    <button id="save_dot_btn"class="btn btn-info center-block">
+                        save .dot
+                    </button>
                 </div>
                 <div class="col-sm-1 col-height col-middle">
-                    <button onclick="javascript:writeFile()" class="btn btn-info center-block">save .dot</button>
+                    <button id="save_svg_btn" class="btn btn-info">
+                        save .svg
+                    </button>
                 </div>
                 <div class="col-sm-1 col-height col-middle">
-                    <button onclick="" class="btn btn-info">save .svg</button>
-                </div>
-                <div class="col-sm-1 col-height col-middle">
-                    <button onclick="" class="btn btn-info">save .png</button>
+                    <button id="save_png_btn" class="btn btn-info">
+                        save .png
+                    </button>
                 </div>
             </div>
         </div>
@@ -138,7 +135,12 @@
            <div id="graph" class="col-sm-6"></div>
         </div>
     </div>
+      <!-- Latest compiled and minified JavaScript -->
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <script src="./viz.1.3.0.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js" type="text/javascript" charset="utf-8"></script>
-    <script type="text/javascript" src="./gdrive.js"></script>
+    <script type="text/javascript" src="./gdrive.js" charset="utf-8"></script>
+    <script src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
   </body>
 </html>

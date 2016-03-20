@@ -9,6 +9,7 @@ var SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.c
  * Check if current user has authorized this application.
  */
 function checkAuth() {
+    console.log("checkAuth");
     gapi.auth
         .authorize(
             {
@@ -66,11 +67,9 @@ var DEFAULT_FILE = {
  * @param {Object} evt Arguments from the file selector.
  */
 //function writeFile(evt) {
-function writeFile() {
+function writeTextFile(fileName, content) {
     gapi.client.load('drive', 'v2', function () {
         //var file = evt.target.files[0];
-        var fileName = "JSSaveTest.txt";// document.getElementById("fileName").value;
-        var content = "TextContent"; // document.getElementById("content").value;
         console.log("fileName = "+fileName);
         console.log("content = "+content);
         insertFile(fileName,content);
@@ -115,7 +114,7 @@ function insertFile(fileName,content, callback) {
     });
     if(!callback) {
         callback = function (file) {
-            alert("保存しました。");
+            alert("保存しました");
             console.log(file)
         };
     }
@@ -167,4 +166,14 @@ editor.getSession().setMode("ace/mode/dot");
 editor.on("change", function() {
     drawGraph();
 });
+
+document.getElementById('save_dot_btn').addEventListener(
+    'click',
+    function () {
+        var fileName = document.getElementById('fileName').textContent;
+        var content  = editor.getSession().getDocument().getValue();
+        writeTextFile(fileName, content);
+    }
+);
+
 drawGraph();
