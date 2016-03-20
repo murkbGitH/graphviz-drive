@@ -1,3 +1,6 @@
+const TEXT_MIME_TYPE    = 'text/plain';
+const SVG_MIME_TYPE     = 'image/svg+xml';
+
 // Your Client ID can be retrieved from your project in the Google
 // Developer Console, https://console.developers.google.com
 var CLIENT_ID = "1027551625677-9582c548i7072iih701rp3a0aeua98jg.apps.googleusercontent.com";
@@ -66,15 +69,17 @@ var DEFAULT_FILE = {
  *
  * @param {Object} evt Arguments from the file selector.
  */
-//function writeFile(evt) {
-function writeTextFile(fileName, content) {
+function writeFile(fileName, content, contentType) {
     gapi.client.load('drive', 'v2', function () {
-        //var file = evt.target.files[0];
-        console.log("fileName = "+fileName);
-        console.log("content = "+content);
-        insertFile(fileName,content);
+        insertFile(fileName,content, contentType);
     });
 }
+
+function writeTextFile(fileName, content) {
+    writeFile(fileName, content, TEXT_MIME_TYPE);
+}
+
+
 
 /**
  * Insert new file.
@@ -83,12 +88,11 @@ function writeTextFile(fileName, content) {
  * @param {content} 保存するファイルの内容
  * @param {Function} callback Function to call when the request is complete.
  */
-function insertFile(fileName,content, callback) {
+function insertFile(fileName,content, contentType, callback) {
     const boundary = '-------314159265358979323846';
     const delimiter = "\r\n--" + boundary + "\r\n";
     const close_delim = "\r\n--" + boundary + "--";
 
-    var contentType = 'text/plain';
     var metadata = {
         'title': fileName,
         'mimeType': contentType
@@ -130,6 +134,7 @@ var editor = ace.edit("editor");
 var parser = new DOMParser();
 var worker;
 var result;
+var isFilenameSpecified = false;
 
 function drawGraph() {
     console.log("drawGraph called");
@@ -171,9 +176,34 @@ document.getElementById('save_dot_btn').addEventListener(
     'click',
     function () {
         var fileName = document.getElementById('fileName').textContent;
+        var promptResult = prompt('File Name', fileName);
+        if (promptResult) {
+            fileName = promptResult;
+        } else {
+            console.log("Input fileName canceled.");
+            return;
+        }
         var content  = editor.getSession().getDocument().getValue();
         writeTextFile(fileName, content);
     }
 );
+
+document.getElementById('save_svg_btn').addEventListener(
+    'click',
+    function () {
+        var fileName = document.getElementById('fileName').textContent + ".svg";
+        var promptResult = prompt('File Name', fileName);
+        if (promptResult) {
+            fileName = promptResult;
+        } else {
+            console.log("Input fileName canceled.");
+            return;
+        }
+        var content = document.getElementById('graph').innerHTML;
+        console.log(content);
+        writeFile(fileName, content, SVG_MIME_TYPE);
+    }
+);
+
 
 drawGraph();
