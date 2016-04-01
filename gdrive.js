@@ -69,7 +69,7 @@ var DEFAULT_FILE = {
  *
  * @param {Object} evt Arguments from the file selector.
  */
-function writeFile(fileName, content, contentType) {
+function writeFileToGDrive(fileName, content, contentType) {
     gapi.client.load('drive', 'v2', function () {
         insertFile(fileName,content, contentType);
     });
@@ -191,18 +191,27 @@ document.getElementById('save_btn').addEventListener(
 
         var content, mimeType;
         switch (fileFormat) {
-            case 'dot': {
-                content = editor.getSession().getDocument().getValue();
-                mimeType = TEXT_MIME_TYPE;
-            }
+        case 'dot':
+            content = editor.getSession().getDocument().getValue();
+            mimeType = TEXT_MIME_TYPE;
             break;
-            case 'svg': {
-                content = document.getElementById('graph').innerHTML;
-                mimeType = SVG_MIME_TYPE
-            }
+        case 'svg':
+            content = document.getElementById('graph').innerHTML;
+            mimeType = SVG_MIME_TYPE
+            break;
+        case 'png':
+            console.log('UnInmplementation');
             break;
         }
-        writeFile(fileName, content, mimeType);
+
+        switch(savePlace) {
+        case 'local':
+            // save file locally
+            break;
+        case 'gdrive':
+            writeFileToGDrive(fileName, content, mimeType);
+            break;
+        }
     }
 );
 
