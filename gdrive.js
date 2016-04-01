@@ -172,10 +172,17 @@ editor.on("change", function() {
     drawGraph();
 });
 
-document.getElementById('save_dot_btn').addEventListener(
+document.getElementById('save_btn').addEventListener(
     'click',
     function () {
         var fileName = document.getElementById('fileName').textContent;
+        var s = document.getElementById('fileFormat');
+        var fileFormat = s.options[s.selectedIndex].value;
+        s = document.getElementById('savePlace');
+        var savePlace = s.options[s.selectedIndex].value;
+
+        //console.log(fileFormat + "," + savePlace);
+
         var promptResult = prompt('File Name', fileName);
         if (promptResult) {
             fileName = promptResult;
@@ -185,12 +192,7 @@ document.getElementById('save_dot_btn').addEventListener(
         }
         var content  = editor.getSession().getDocument().getValue();
         writeTextFile(fileName, content);
-    }
-);
-
-document.getElementById('save_svg_btn').addEventListener(
-    'click',
-    function () {
+/*
         var fileName = document.getElementById('fileName').textContent + ".svg";
         var promptResult = prompt('File Name', fileName);
         if (promptResult) {
@@ -202,8 +204,8 @@ document.getElementById('save_svg_btn').addEventListener(
         var content = document.getElementById('graph').innerHTML;
         console.log(content);
         writeFile(fileName, content, SVG_MIME_TYPE);
+*/
     }
 );
-
 
 drawGraph();

@@ -83,20 +83,29 @@
         </div>
         <div class="row bg-info">
             <div class="row-height">
-                <div class="col-sm-9 col-middle col-height"><strong id="fileName">Untitled.dot</strong></div>
-                <div class="col-sm-1 col-height col-middle">
-                    <button id="save_dot_btn"class="btn btn-info center-block">
-                        save .dot
-                    </button>
+                <div class="col-sm-7 col-middle col-height"><strong id="fileName">Untitled.dot</strong></div>
+                <div class="col-sm-2 col-height col-middle">
+                    <label>
+                    Save File Format
+                    </label>
+                    <select name="fileFormat" id="fileFormat">
+                        <option value="dot">.dot</option>
+                        <option value="svg">.svg</option>
+                        <option value="png">.png</option>
+                    </select>
+                </div>
+                <div class="col-sm-2 col-height col-middle">
+                    <label>
+                        Save Place
+                    </label>
+                    <select name="savePlace" id="savePlace">
+                        <option value="local">local</option>
+                        <option value="gdrive">GDrive</option>
+                    </select>
                 </div>
                 <div class="col-sm-1 col-height col-middle">
-                    <button id="save_svg_btn" class="btn btn-info">
-                        save .svg
-                    </button>
-                </div>
-                <div class="col-sm-1 col-height col-middle">
-                    <button id="save_png_btn" class="btn btn-info">
-                        save .png
+                    <button id="save_btn"class="btn btn-info center-block">
+                        save
                     </button>
                 </div>
             </div>
