@@ -75,11 +75,6 @@ function writeFile(fileName, content, contentType) {
     });
 }
 
-function writeTextFile(fileName, content) {
-    writeFile(fileName, content, TEXT_MIME_TYPE);
-}
-
-
 
 /**
  * Insert new file.
@@ -172,6 +167,11 @@ editor.on("change", function() {
     drawGraph();
 });
 
+
+function addFileExtension(filename, ext) {
+    return filename + ext;
+}
+
 document.getElementById('save_btn').addEventListener(
     'click',
     function () {
@@ -181,30 +181,28 @@ document.getElementById('save_btn').addEventListener(
         s = document.getElementById('savePlace');
         var savePlace = s.options[s.selectedIndex].value;
 
-        //console.log(fileFormat + "," + savePlace);
+        var promptResult = prompt('File Name', fileName);
+        if (promptResult) {
+            fileName = promptResult;
+        } else {
+            console.log("Input fileName canceled.");
+            return;
+        }
 
-        var promptResult = prompt('File Name', fileName);
-        if (promptResult) {
-            fileName = promptResult;
-        } else {
-            console.log("Input fileName canceled.");
-            return;
+        var content, mimeType;
+        switch (fileFormat) {
+            case 'dot': {
+                content = editor.getSession().getDocument().getValue();
+                mimeType = TEXT_MIME_TYPE;
+            }
+            break;
+            case 'svg': {
+                content = document.getElementById('graph').innerHTML;
+                mimeType = SVG_MIME_TYPE
+            }
+            break;
         }
-        var content  = editor.getSession().getDocument().getValue();
-        writeTextFile(fileName, content);
-/*
-        var fileName = document.getElementById('fileName').textContent + ".svg";
-        var promptResult = prompt('File Name', fileName);
-        if (promptResult) {
-            fileName = promptResult;
-        } else {
-            console.log("Input fileName canceled.");
-            return;
-        }
-        var content = document.getElementById('graph').innerHTML;
-        console.log(content);
-        writeFile(fileName, content, SVG_MIME_TYPE);
-*/
+        writeFile(fileName, content, mimeType);
     }
 );
 
