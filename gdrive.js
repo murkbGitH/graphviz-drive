@@ -1,5 +1,6 @@
 const TEXT_MIME_TYPE    = 'text/plain';
 const SVG_MIME_TYPE     = 'image/svg+xml';
+const PNG_MIME_TYPE     = 'image/png';
 
 // Your Client ID can be retrieved from your project in the Google
 // Developer Console, https://console.developers.google.com
@@ -93,7 +94,13 @@ function insertFile(fileName,content, contentType, callback) {
         'mimeType': contentType
     };
 
-    var base64Data = utf8_to_b64(content);
+    var base64Data;
+    if (contentType == PNG_MIME_TYPE) {
+        base64Data = content;
+    } else {
+        base64Data = utf8_to_b64(content);
+    }
+    console.log(base64Data);
     var multipartRequestBody = delimiter +
         'Content-Type: application/json\r\n\r\n' + JSON.stringify(metadata) + delimiter +
         'Content-Type: ' + contentType + '\r\n' +
@@ -129,6 +136,7 @@ var editor = ace.edit("editor");
 var parser = new DOMParser();
 var worker;
 var result;
+var png;
 var isFilenameSpecified = false;
 
 function drawGraph() {
@@ -155,6 +163,7 @@ function drawGraph() {
         }
         var svg = parser.parseFromString(result, "image/svg+xml");
         graph.appendChild(svg.documentElement);
+        png = Viz.svgXmlToPngImageElement(document.getElementById('graph').innerHTML);
     }
     worker.onerror = function(e) {
         console.error(e);
@@ -171,6 +180,7 @@ editor.on("change", function() {
 function addFileExtension(filename, ext) {
     return filename + ext;
 }
+
 
 document.getElementById('save_btn').addEventListener(
     'click',
@@ -189,7 +199,8 @@ document.getElementById('save_btn').addEventListener(
             return;
         }
 
-        var content, mimeType;
+        var content;
+        var mimeType;
         switch (fileFormat) {
         case 'dot':
             content = editor.getSession().getDocument().getValue();
@@ -200,16 +211,35 @@ document.getElementById('save_btn').addEventListener(
             mimeType = SVG_MIME_TYPE
             break;
         case 'png':
-            console.log('UnInmplementation');
+            content = png.src;
+            mimeType = PNG_MIME_TYPE;
             break;
         }
 
+
         switch(savePlace) {
         case 'local':
-            // save file locally
+            if (fileFormat == 'dot' || fileFormat == 'svg') {
+                // save file locally (text)
+                var blob = new Blob([content],  {type: "text/plain;charset=utf-8"});
+                saveAs(blob, fileName);
+            } else if (fileFormat == 'png') {
+                var download = document.createElement('a');
+                download.href = png.src;
+                download.download = fileName;
+                download.click();
+            }
             break;
         case 'gdrive':
-            writeFileToGDrive(fileName, content, mimeType);
+            if (fileFormat == 'png') {
+                console.log(content);
+                console.log(content.split(',')[1]);
+                //var buf = window.atob(content.split(',')[1]);
+                var buf = content.split(',')[1];
+                writeFileToGDrive(fileName + ".png", buf, mimeType);
+            } else {
+                writeFileToGDrive(fileName, content, mimeType);
+            }
             break;
         }
     }
