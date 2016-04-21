@@ -64,6 +64,9 @@ var DEFAULT_FILE = {
     }
 };
 
+// Key : value = File, Data?
+var drive_files = {};
+
 
 /**
  * Start the file upload.
@@ -107,8 +110,8 @@ function insertFile(fileName,content, contentType, callback) {
         'Content-Transfer-Encoding: base64\r\n' +
         '\r\n' + base64Data + close_delim;
 
-    var request = gapi.client.request({
-        'path': '/upload/drive/v2/files',
+    var request_arg = {
+        'path': '/upload/drive/v2/files', // add encodeURICompoment & method = PUT if metadata.id exists
         'method': 'POST',
         'params': {
             'uploadType': 'multipart'
@@ -117,11 +120,17 @@ function insertFile(fileName,content, contentType, callback) {
             'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
         },
         'body': multipartRequestBody
-    });
+    }
+    request_arg['path'];
+    request_arg['method'];
+    var request = gapi.client.request(request_arg);
     if(!callback) {
-        callback = function (file) {
+        callback = function (response) {
             alert("保存しました");
-            console.log(file)
+            //console.log("response=" + response);
+            var metadata = response.id;
+            drive_files[fileName] = response;
+            //console.log(drive_files);
         };
     }
     request.execute(callback);
@@ -133,11 +142,8 @@ function utf8_to_b64(str) {
 }
 
 var editor = ace.edit("editor");
-var parser = new DOMParser();
 var worker;
-var result;
 var png;
-var isFilenameSpecified = false;
 
 function drawGraph() {
     console.log("drawGraph called");
@@ -155,13 +161,13 @@ function drawGraph() {
     };
 
     worker.onmessage = function(e) {
-        result = e.data;
         var graph = document.getElementById('graph');
         var svgarea = graph.firstChild; // graph.querySelector('svg');
         if (svgarea) {
             svgarea.parentNode.removeChild(svgarea);
         }
-        var svg = parser.parseFromString(result, "image/svg+xml");
+        var parser = new DOMParser();
+        var svg = parser.parseFromString(e.data, "image/svg+xml");
         graph.appendChild(svg.documentElement);
         png = Viz.svgXmlToPngImageElement(document.getElementById('graph').innerHTML);
     }
@@ -178,7 +184,13 @@ editor.on("change", function() {
 
 
 function addFileExtension(filename, ext) {
-    return filename + ext;
+    var re=/(.*)(?:\.([^.]+$))/;
+    var m = filename.match(re);
+    if (m && m[2] === ext) {
+        return filename;
+    } else {
+        return filename + "." + ext;
+    }
 }
 
 
@@ -198,6 +210,7 @@ document.getElementById('save_btn').addEventListener(
             console.log("Input fileName canceled.");
             return;
         }
+        fileName = addFileExtension(fileName, fileFormat);
 
         var content;
         var mimeType;
@@ -232,9 +245,7 @@ document.getElementById('save_btn').addEventListener(
             break;
         case 'gdrive':
             if (fileFormat == 'png') {
-                console.log(content);
-                console.log(content.split(',')[1]);
-                //var buf = window.atob(content.split(',')[1]);
+                // console.log(content);
                 var buf = content.split(',')[1];
                 writeFileToGDrive(fileName + ".png", buf, mimeType);
             } else {
