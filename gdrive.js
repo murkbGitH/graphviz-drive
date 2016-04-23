@@ -121,8 +121,10 @@ function insertFile(fileName,content, contentType, callback) {
         },
         'body': multipartRequestBody
     }
-    request_arg['path'];
-    request_arg['method'];
+    if (drive_files[fileName]) {
+        request_arg['path'] = '/upload/drive/v2/files/' + encodeURIComponent(drive_files[fileName].id);
+        request_arg['method'] = 'PUT';
+    }
     var request = gapi.client.request(request_arg);
     if(!callback) {
         callback = function (response) {
