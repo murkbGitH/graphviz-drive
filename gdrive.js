@@ -2,12 +2,40 @@ const TEXT_MIME_TYPE    = 'text/plain';
 const SVG_MIME_TYPE     = 'image/svg+xml';
 const PNG_MIME_TYPE     = 'image/png';
 
+// The Browser API key obtained from the Google Developers Console.
+var DEVELOPER_KEY = 'AIzaSyAI5grPt2ETORNhZp05lB950crIyNlffCc';
+
 // Your Client ID can be retrieved from your project in the Google
 // Developer Console, https://console.developers.google.com
 var CLIENT_ID = "1027551625677-9582c548i7072iih701rp3a0aeua98jg.apps.googleusercontent.com";
 
 //var SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly'];
 var SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/drive.install'];
+
+var oauthToken;
+var pickerApiLoaded = false;
+
+
+// Use the API Loader script to load google.picker and gapi.auth.
+function onApiLoad() {
+//  window.gapi.load('auth', {'callback': onAuthApiLoad});
+  window.gapi.load('picker', {'callback': onPickerApiLoad});
+}
+
+function onAuthApiLoad() {
+  window.gapi.auth.authorize(
+      {
+        'client_id': clientId,
+        'scope': SCOPES.join(' '),
+        'immediate': false
+      },
+      handleAuthResult);
+}
+
+function onPickerApiLoad() {
+  pickerApiLoaded = true;
+}
+
 
 /**
  * Check if current user has authorized this application.
@@ -34,6 +62,7 @@ function handleAuthResult(authResult) {
     if (authResult && !authResult.error) {
         // Hide auth UI, then load client library.
         authorizeDiv.style.display = 'none';
+        oauthToken = authResult.access_token;
     } else {
         // Show auth UI, allowing the user to initiate authorization by
         // clicking authorize button.
@@ -63,6 +92,7 @@ var DEFAULT_FILE = {
         editable: true
     }
 };
+var DEFAULT_FIELDS = 'id,title,mimeType,userPermission,editable,copyable,shared,fileSize';
 
 // Key : value = File, Data?
 var drive_files = {};
@@ -137,6 +167,28 @@ function insertFile(fileName,content, contentType, callback) {
     }
     request.execute(callback);
 }
+
+var metadataRequest;
+var contentRequest;
+var response;
+
+// load .dot file
+function loadFileFromGDrive(fileId) {
+    gapi.client.load('drive', 'v3', function () {
+        //metadataRequest = gapi.client.drive.files.get({
+        //    fileId: fileId,
+        //    fields: DEFAULT_FIELDS
+        //});
+        contentRequest = gapi.client.drive.files.get({
+            fileId: fileId,
+            alt: 'media'
+        }).then(function(resp){
+            response = resp;
+            editor.getSession().setValue(resp.body);
+        });
+    });
+}
+
 
 // from http://ecmanaut.blogspot.jp/2006/07/encoding-decoding-utf8-in-javascript.html
 function utf8_to_b64(str) {
@@ -255,6 +307,37 @@ document.getElementById('save_btn').addEventListener(
             }
             break;
         }
+    }
+);
+
+
+
+function createPicker() {
+    if (pickerApiLoaded && oauthToken) {
+        var picker = new google.picker.PickerBuilder().
+            addView(google.picker.ViewId.DOCS).
+            setOAuthToken(oauthToken).
+            setDeveloperKey(DEVELOPER_KEY).
+            setCallback(pickerCallback).
+            build();
+        picker.setVisible(true);
+    }
+}
+
+var doc;
+
+// A simple callback implementation.
+function pickerCallback(data) {
+    if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
+        doc = data[google.picker.Response.DOCUMENTS][0];
+        loadFileFromGDrive(doc.id);
+    }
+}
+
+document.getElementById('open_btn').addEventListener(
+    'click',
+    function () {
+        createPicker();
     }
 );
 
