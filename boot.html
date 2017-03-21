@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>graphviz drive</title>
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous">
+
+
+<style>
+.color-white {
+color: #FFF;
+}
+#editor {
+/*
+position: absolute;
+width: 100%;   /* resize it */
+height: 400px;  /* resize it */
+}
+</style>
+
+</head>
+<body>
+<nav class="navbar navbar-light" style="background-color: #e3f2fd;">
+<a class="navbar-brand" href="#">Graphviz Drive</a>
+
+<div class="form-inline float-xs-right">
+	<div class="form-group form-inline">
+	<label for="formatSelect">Save File Format</label>
+	<select class="form-control" id="formatSelect">
+		<option>.dot</option>
+		<option>.svg</option>
+		<option>.png</option>
+	</select>
+	</div>
+
+	<div class="form-group form-inline">
+		<label for="savePlaceSelect">Save Place</label>
+		<select class="form-control" id="savePlaceSelect">
+			<option>Google Drive</option>
+			<option>local</option>
+		</select>
+	</div>
+	<button type="button" class="btn btn-success" type="submit">Save</button>
+	<button type="button" class="btn btn-success" type="submit">Open</button>
+	<button type="button" class="btn btn-primary" type="submit">Login Google</button>
+</div>
+</nav>
+
+<div class="row">
+	<div class="col-sm-12 col-md-6" id="editor">digraph G {
+	subgraph cluster_0 {
+		style=filled;
+		color=lightgrey;
+		node [style=filled,color=white];
+		a0 -> a1 -> a2 -> a3;
+		label = "process #1";
+	}
+	subgraph cluster_1 {
+		node [style=filled];
+		b0 -> b1 -> b2 -> b3;
+		label = "process #2";
+		color=blue
+	}
+	start -> a0;
+	start -> b0;
+	a1 -> b3;
+	b2 -> a3;
+	a3 -> a0;
+	a3 -> end;
+	b3 -> end;
+
+	start [shape=Mdiamond];
+	end [shape=Msquare];
+}</div>
+
+	<div class="col-sm-12 col-md-6" id="viewer">
+		2 of 2
+	</div>
+</div>
+<!--
+
+	<div class="col-sm-12 col-md-6" id="viewer">
+	2 of 2
+</div>
+-->
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" integrity="sha384-3ceskX3iaEnIogmQchP8opvBy3Mi7Ce34nWjpBIwVTHfGYWQS9jwHDVRnpKKHJg7" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.3.7/js/tether.min.js" integrity="sha384-XTs3FgkjiBgo8qjEjBk0tGmf3wPrWtA6coPfQDfFEY8AnYJwjalXCiosYRBIBZX8" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js" integrity="sha384-BLiI7JTZm+JWlgKa0M0kGRpJbF2J8q+qreVrKBC47e3K6BW78kGLrCkeRX6I9RoK" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.5/ace.js" type="text/javascript" charset="utf-8"></script>
+
+<script>
+
+var editor = ace.edit("editor");
+editor.getSession().setMode("ace/mode/dot");
+editor.setShowPrintMargin(false);
+editor.resize();
+
+$(window).resize(function(){
+var h = $(window).height();
+var nh = $('nav').height();
+$('#editor').height(h - nh);
+
+});
+
+</script>
+</body>
+</html>
