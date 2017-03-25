@@ -9,8 +9,8 @@ const plumber = require('gulp-plumber');
 const paths = {
     scss: 'src/scss/',
     css: 'dist/css/',
-    html_src: 'src/html',
-    html_dst: 'dist/html',
+    html_src: 'src/html/',
+    html_dst: 'dist/html/',
     js_src: 'src/js/',
     js_dst: 'dist/js/',
     lib_src: 'src/lib/',
