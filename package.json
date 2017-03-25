@@ -12,6 +12,7 @@
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "gulp-eslint": "^3.0.1",
+    "gulp-html": "^0.4.5",
     "gulp-sass": "^3.1.0",
     "gulp-sourcemaps": "^2.4.1"
   },
