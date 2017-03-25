@@ -1,13 +1,17 @@
-var gulp = require('gulp');
-var sass = require('gulp-sass');
-var sourcemaps = require('gulp-sourcemaps');
-var html_validator = require('gulp-html');
+const gulp = require('gulp');
+const babel = require('gulp-babel');
+const sass = require('gulp-sass');
+const sourcemaps = require('gulp-sourcemaps');
+const html_validator = require('gulp-html');
 
-var paths = {
+const paths = {
     scss: 'src/scss/',
     css: 'dist/css/',
     html_src: 'src/html',
-    html_dst: 'dist/html'
+    html_dst: 'dist/html',
+    js_src: 'src/js/',
+    js_dst: 'dist/js/',
+    lib: 'src/lib/'
 }
 
 gulp.task('scss', function() {
@@ -24,3 +28,16 @@ gulp.task('html', function() {
         // .pipe(html_validator()) // TODO あとでvalidにする
         .pipe(gulp.dest(paths.html_dst))
 });
+
+gulp.task('js', function() {
+    return gulp.src(paths.js_src + '**/*.js')
+        .pipe(babel({ presets: ['es2015'] }))
+        .pipe(gulp.dest(paths.js_dst));
+});
+
+gulp.task('libjs', function() {
+    return gulp.src(paths.lib + '**/*.js')
+        .pipe(gulp.dest(paths.js_dst));
+});
+
+gulp.task('default', ['scss', 'html', 'js', 'libjs']);
