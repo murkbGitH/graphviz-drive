@@ -3,6 +3,7 @@ const babel = require('gulp-babel');
 const sass = require('gulp-sass');
 const sourcemaps = require('gulp-sourcemaps');
 const html_validator = require('gulp-html');
+const uglify = require("gulp-uglify");
 
 const paths = {
     scss: 'src/scss/',
@@ -11,7 +12,8 @@ const paths = {
     html_dst: 'dist/html',
     js_src: 'src/js/',
     js_dst: 'dist/js/',
-    lib: 'src/lib/'
+    lib_src: 'src/lib/',
+    lib_dst: 'dist/lib/'
 }
 
 gulp.task('scss', function() {
@@ -32,12 +34,13 @@ gulp.task('html', function() {
 gulp.task('js', function() {
     return gulp.src(paths.js_src + '**/*.js')
         .pipe(babel({ presets: ['es2015'] }))
+        .pipe(uglify())
         .pipe(gulp.dest(paths.js_dst));
 });
 
-gulp.task('libjs', function() {
-    return gulp.src(paths.lib + '**/*.js')
-        .pipe(gulp.dest(paths.js_dst));
+gulp.task('lib', function() {
+    return gulp.src(paths.lib_src + '**/*')
+        .pipe(gulp.dest(paths.lib_dst));
 });
 
-gulp.task('default', ['scss', 'html', 'js', 'libjs']);
+gulp.task('default', ['scss', 'html', 'js', 'lib']);
