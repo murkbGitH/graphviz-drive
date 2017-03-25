@@ -4,6 +4,7 @@ const sass = require('gulp-sass');
 const sourcemaps = require('gulp-sourcemaps');
 const html_validator = require('gulp-html');
 const uglify = require("gulp-uglify");
+const plumber = require('gulp-plumber');
 
 const paths = {
     scss: 'src/scss/',
@@ -18,6 +19,7 @@ const paths = {
 
 gulp.task('scss', function() {
     return gulp.src(paths.scss + '**/*.scss')
+        .pipe(plumber())
         .pipe(sourcemaps.init())
         .pipe(sass({outputStyle: 'compact'}))
         .on('error', sass.logError)
@@ -27,12 +29,14 @@ gulp.task('scss', function() {
 
 gulp.task('html', function() {
     return gulp.src(paths.html_src + '**/*.html')
+        .pipe(plumber())
         // .pipe(html_validator()) // TODO あとでvalidにする
         .pipe(gulp.dest(paths.html_dst))
 });
 
 gulp.task('js', function() {
     return gulp.src(paths.js_src + '**/*.js')
+        .pipe(plumber())
         .pipe(babel({ presets: ['es2015'] }))
         .pipe(uglify())
         .pipe(gulp.dest(paths.js_dst));
@@ -44,3 +48,7 @@ gulp.task('lib', function() {
 });
 
 gulp.task('default', ['scss', 'html', 'js', 'lib']);
+
+gulp.task('watch', function() {
+    gulp.watch('./src/**/*', ['default']);
+});
