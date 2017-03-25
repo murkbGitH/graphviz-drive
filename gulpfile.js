@@ -5,12 +5,14 @@ const sourcemaps = require('gulp-sourcemaps');
 const html_validator = require('gulp-html');
 const uglify = require("gulp-uglify");
 const plumber = require('gulp-plumber');
+const webserver = require('gulp-webserver');
+
 
 const paths = {
     scss: 'src/scss/',
     css: 'dist/css/',
     html_src: 'src/html/',
-    html_dst: 'dist/html/',
+    html_dst: 'dist/',
     js_src: 'src/js/',
     js_dst: 'dist/js/',
     lib_src: 'src/lib/',
@@ -49,6 +51,15 @@ gulp.task('lib', function() {
 
 gulp.task('default', ['scss', 'html', 'js', 'lib']);
 
-gulp.task('watch', function() {
+gulp.task('webserver', function() {
+     gulp.src('dist/') // 公開したい静的ファイルを配置したディレクトリを指定する
+     .pipe(webserver({
+         host: 'localhost',
+         port: 8000,
+         livereload: true
+     }));
+});
+
+gulp.task('watch', ['webserver', 'default'], function() {
     gulp.watch('./src/**/*', ['default']);
 });

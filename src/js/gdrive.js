@@ -204,7 +204,7 @@ function drawGraph() {
     if (worker) {
         worker.terminate();
     }
-    worker = new Worker("./worker.js");
+    worker = new Worker("/js/worker.js");
 
     var arg = {
         src: editor.getSession().getDocument().getValue(),
