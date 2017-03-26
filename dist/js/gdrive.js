@@ -1,7 +1,5 @@
 'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var TEXT_MIME_TYPE = 'text/plain';
@@ -51,289 +49,256 @@ function addFileExtension(filename, ext) {
 }
 
 var oauthToken = false;
-var drive_files = {}; // Key : value = File, Data?
 
-var GoogleDriveAdapter = function () {
-    function GoogleDriveAdapter() {
-        _classCallCheck(this, GoogleDriveAdapter);
+var GoogleDriveAdapter = function GoogleDriveAdapter() {
+    var _this = this;
 
-        this.pickerApiLoaded = false;
-        this.metadataRequest = null;
-        this.contentRequest = null;
-        this.response = null;
-    }
+    _classCallCheck(this, GoogleDriveAdapter);
 
+    this.pickerApiLoaded = false;
+    this.metadataRequest = null;
+    this.contentRequest = null;
+    this.response = null;
+    this.drive_files = {}; // Key : value = File, Data?
     // Use the API Loader script to load google.picker and gapi.auth.
+    this.onApiLoad = function () {
+        //  window.gapi.load('auth', {'callback': onAuthApiLoad});
+        window.gapi.load('picker', { 'callback': onPickerApiLoad });
+    };
 
-
-    _createClass(GoogleDriveAdapter, [{
-        key: 'onApiLoad',
-        value: function onApiLoad() {
-            //  window.gapi.load('auth', {'callback': onAuthApiLoad});
-            window.gapi.load('picker', { 'callback': onPickerApiLoad });
+    /**
+     * Handle response from authorization server.
+     *
+     * @param {Object} authResult Authorization result.
+     */
+    this.handleAuthResult = function (authResult) {
+        var authorizeDiv = document.getElementById('login_btn');
+        if (authResult && !authResult.error) {
+            // Hide auth UI, then load client library.
+            authorizeDiv.style.display = 'none';
+            oauthToken = authResult.access_token;
+        } else {
+            // Show auth UI, allowing the user to initiate authorization by
+            // clicking authorize button.
+            authorizeDiv.style.display = 'inline';
         }
+    };
 
-        /**
-         * Handle response from authorization server.
-         *
-         * @param {Object} authResult Authorization result.
-         */
+    /**
+     * Insert new file.
+     *
+     * @param {fileName} 保存するファイル名
+     * @param {content} 保存するファイルの内容
+     * @param {Function} callback Function to call when the request is complete.
+     */
+    this.insertFile = function (fileName, content, contentType, callback) {
+        var boundary = '-------314159265358979323846';
+        var delimiter = "\r\n--" + boundary + "\r\n";
+        var close_delim = "\r\n--" + boundary + "--";
 
-    }, {
-        key: 'handleAuthResult',
-        value: function handleAuthResult(authResult) {
-            var authorizeDiv = document.getElementById('login_btn');
-            if (authResult && !authResult.error) {
-                // Hide auth UI, then load client library.
-                authorizeDiv.style.display = 'none';
-                oauthToken = authResult.access_token;
-            } else {
-                // Show auth UI, allowing the user to initiate authorization by
-                // clicking authorize button.
-                authorizeDiv.style.display = 'inline';
-            }
+        var metadata = {
+            'title': fileName,
+            'mimeType': contentType
+        };
+
+        var base64Data = void 0;
+        if (contentType == PNG_MIME_TYPE) {
+            base64Data = content;
+        } else {
+            base64Data = utf8_to_b64(content);
         }
-    }, {
-        key: 'onAuthApiLoad',
-        value: function onAuthApiLoad() {
-            window.gapi.auth.authorize({
-                'client_id': clientId,
-                'scope': SCOPES.join(' '),
-                'immediate': false
-            }, this.handleAuthResult);
+        console.log(base64Data);
+        var multipartRequestBody = delimiter + 'Content-Type: application/json\r\n\r\n' + JSON.stringify(metadata) + delimiter + 'Content-Type: ' + contentType + '\r\n' + 'Content-Transfer-Encoding: base64\r\n' + '\r\n' + base64Data + close_delim;
+
+        var request_arg = {
+            'path': '/upload/drive/v2/files', // add encodeURICompoment & method = PUT if metadata.id exists
+            'method': 'POST',
+            'params': {
+                'uploadType': 'multipart'
+            },
+            'headers': {
+                'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
+            },
+            'body': multipartRequestBody
+        };
+
+        var drive_files = _this.drive_files;
+        if (drive_files[fileName]) {
+            request_arg['path'] = '/upload/drive/v2/files/' + encodeURIComponent(drive_files[fileName].id);
+            request_arg['method'] = 'PUT';
         }
-    }, {
-        key: 'onPickerApiLoad',
-        value: function onPickerApiLoad() {
-            pickerApiLoaded = true;
-        }
-
-        /**
-         * Check if current user has authorized this application.
-         */
-
-    }, {
-        key: 'checkAuth',
-        value: function checkAuth() {
-            console.log("checkAuth");
-            gapi.auth.authorize({
-                'client_id': CLIENT_ID,
-                'scope': SCOPES.join(' '),
-                'immediate': true
-            }, this.handleAuthResult);
-        }
-
-        /**
-         * Initiate auth flow in response to user clicking authorize button.
-         *
-         * @param {Event} event Button click event.
-         */
-
-    }, {
-        key: 'handleAuthClick',
-        value: function handleAuthClick(event) {
-            gapi.auth.authorize({
-                client_id: CLIENT_ID,
-                scope: SCOPES,
-                immediate: false
-            }, this.handleAuthResult);
-            return false;
-        }
-
-        /**
-         * Insert new file.
-         *
-         * @param {fileName} 保存するファイル名
-         * @param {content} 保存するファイルの内容
-         * @param {Function} callback Function to call when the request is complete.
-         */
-
-    }, {
-        key: 'insertFile',
-        value: function insertFile(fileName, content, contentType, callback) {
-            var boundary = '-------314159265358979323846';
-            var delimiter = "\r\n--" + boundary + "\r\n";
-            var close_delim = "\r\n--" + boundary + "--";
-
-            var metadata = {
-                'title': fileName,
-                'mimeType': contentType
+        var request = gapi.client.request(request_arg);
+        if (!callback) {
+            callback = function callback(response) {
+                alert("保存しました");
+                //console.log("response=" + response);
+                var metadata = response.id;
+                drive_files[fileName] = response;
+                //console.log(drive_files);
             };
+        }
+        request.execute(callback);
+    };
 
-            var base64Data = void 0;
-            if (contentType == PNG_MIME_TYPE) {
-                base64Data = content;
+    this.onAuthApiLoad = function () {
+        window.gapi.auth.authorize({
+            'client_id': clientId,
+            'scope': SCOPES.join(' '),
+            'immediate': false
+        }, _this.handleAuthResult);
+    };
+
+    this.onPickerApiLoad = function () {
+        _this.pickerApiLoaded = true;
+    };
+
+    /**
+     * Check if current user has authorized this application.
+     */
+    this.checkAuth = function () {
+        console.log("checkAuth");
+        gapi.auth.authorize({
+            'client_id': CLIENT_ID,
+            'scope': SCOPES.join(' '),
+            'immediate': true
+        }, _this.handleAuthResult);
+    };
+
+    /**
+     * Initiate auth flow in response to user clicking authorize button.
+     *
+     * @param {Event} event Button click event.
+     */
+    this.handleAuthClick = function (event) {
+        gapi.auth.authorize({
+            client_id: CLIENT_ID,
+            scope: SCOPES,
+            immediate: false
+        }, _this.handleAuthResult);
+        return false;
+    };
+
+    /**
+     * Start the file upload.
+     *
+     * @param {Object} evt Arguments from the file selector.
+     */
+    this.writeFileToGDrive = function (fileName, content, contentType) {
+        var insertFile = _this.insertFile;
+        gapi.client.load('drive', 'v2', function () {
+            insertFile(fileName, content, contentType);
+        });
+    };
+
+    /*
+     * load .dot file
+     */
+    this.loadFileFromGDrive = function (fileId) {
+        gapi.client.load('drive', 'v3', function () {
+            //metadataRequest = gapi.client.drive.files.get({
+            //    fileId: fileId,
+            //    fields: DEFAULT_FIELDS
+            //});
+            contentRequest = gapi.client.drive.files.get({
+                fileId: fileId,
+                alt: 'media'
+            }).then(function (resp) {
+                response = resp;
+                editor.getSession().setValue(resp.body);
+            });
+        });
+    };
+
+    /**
+     * Show Google Drive Open File Dialog a.k.a Picker
+     */
+    this.createPicker = function () {
+        if (_this.pickerApiLoaded && _this.oauthToken) {
+            var picker = new google.picker.PickerBuilder().addView(google.picker.ViewId.DOCS).setOAuthToken(_this.oauthToken).setDeveloperKey(DEVELOPER_KEY).setCallback(pickerCallback).build();
+            picker.setVisible(true);
+        }
+    };
+
+    // A simple callback implementation.
+    this.pickerCallback = function (data) {
+        if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
+            var doc = data[google.picker.Response.DOCUMENTS][0];
+            loadFileFromGDrive(doc.id);
+        }
+    };
+
+    this.init = function () {
+        document.getElementById('save_btn').addEventListener('click', function () {
+            var fileName = document.getElementById('fileName').value;
+            console.log(fileName);
+            var s = document.getElementById('fileFormat');
+            var fileFormat = s.options[s.selectedIndex].value;
+            s = document.getElementById('savePlace');
+            var savePlace = s.options[s.selectedIndex].value;
+            console.log('savePlace:' + savePlace);
+
+            var promptResult = prompt('File Name', fileName);
+            if (promptResult) {
+                fileName = promptResult;
             } else {
-                base64Data = utf8_to_b64(content);
+                console.log("Input fileName canceled.");
+                return;
             }
-            console.log(base64Data);
-            var multipartRequestBody = delimiter + 'Content-Type: application/json\r\n\r\n' + JSON.stringify(metadata) + delimiter + 'Content-Type: ' + contentType + '\r\n' + 'Content-Transfer-Encoding: base64\r\n' + '\r\n' + base64Data + close_delim;
+            fileName = addFileExtension(fileName, fileFormat);
+            console.log('added filename: ' + fileName);
 
-            var request_arg = {
-                'path': '/upload/drive/v2/files', // add encodeURICompoment & method = PUT if metadata.id exists
-                'method': 'POST',
-                'params': {
-                    'uploadType': 'multipart'
-                },
-                'headers': {
-                    'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
-                },
-                'body': multipartRequestBody
-            };
-            if (drive_files[fileName]) {
-                request_arg['path'] = '/upload/drive/v2/files/' + encodeURIComponent(drive_files[fileName].id);
-                request_arg['method'] = 'PUT';
+            var content = void 0;
+            var mimeType = void 0;
+            switch (fileFormat) {
+                case 'dot':
+                    content = EDITOR_INSTANCE.getEditorSession().getDocument().getValue();
+                    mimeType = TEXT_MIME_TYPE;
+                    break;
+                case 'svg':
+                    content = document.getElementById('graph').innerHTML;
+                    mimeType = SVG_MIME_TYPE;
+                    break;
+                case 'png':
+                    content = png.src;
+                    mimeType = PNG_MIME_TYPE;
+                    break;
             }
-            var request = gapi.client.request(request_arg);
-            if (!callback) {
-                callback = function callback(response) {
-                    alert("保存しました");
-                    //console.log("response=" + response);
-                    var metadata = response.id;
-                    drive_files[fileName] = response;
-                    //console.log(drive_files);
-                };
+            console.log('content');
+            console.log(content);
+            console.log('mimeType');
+            console.log(mimeType);
+
+            switch (savePlace) {
+                case 'local':
+                    if (fileFormat == 'dot' || fileFormat == 'svg') {
+                        // save file locally (text)
+                        var blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+                        saveAs(blob, fileName);
+                    } else if (fileFormat == 'png') {
+                        var download = document.createElement('a');
+                        download.href = png.src;
+                        download.download = fileName;
+                        download.click();
+                    }
+                    break;
+                case 'Google Drive':
+                    if (fileFormat == 'png') {
+                        // console.log(content);
+                        var buf = content.split(',')[1];
+                        _this.writeFileToGDrive(fileName + ".png", buf, mimeType);
+                    } else {
+                        _this.writeFileToGDrive(fileName, content, mimeType);
+                    }
+                    break;
             }
-            request.execute(callback);
-        }
+        });
 
-        /**
-         * Start the file upload.
-         *
-         * @param {Object} evt Arguments from the file selector.
-         */
-
-    }, {
-        key: 'writeFileToGDrive',
-        value: function writeFileToGDrive(fileName, content, contentType) {
-            var f = this.insertFile;
-            gapi.client.load('drive', 'v2', function () {
-                f(fileName, content, contentType);
-            });
-        }
-
-        // load .dot file
-
-    }, {
-        key: 'loadFileFromGDrive',
-        value: function loadFileFromGDrive(fileId) {
-            gapi.client.load('drive', 'v3', function () {
-                //metadataRequest = gapi.client.drive.files.get({
-                //    fileId: fileId,
-                //    fields: DEFAULT_FIELDS
-                //});
-                contentRequest = gapi.client.drive.files.get({
-                    fileId: fileId,
-                    alt: 'media'
-                }).then(function (resp) {
-                    response = resp;
-                    editor.getSession().setValue(resp.body);
-                });
-            });
-        }
-
-        /**
-         * Show Google Drive Open File Dialog a.k.a Picker
-         */
-
-    }, {
-        key: 'createPicker',
-        value: function createPicker() {
-            if (this.pickerApiLoaded && this.oauthToken) {
-                var picker = new google.picker.PickerBuilder().addView(google.picker.ViewId.DOCS).setOAuthToken(this.oauthToken).setDeveloperKey(DEVELOPER_KEY).setCallback(pickerCallback).build();
-                picker.setVisible(true);
-            }
-        }
-
-        // A simple callback implementation.
-
-    }, {
-        key: 'pickerCallback',
-        value: function pickerCallback(data) {
-            if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
-                var doc = data[google.picker.Response.DOCUMENTS][0];
-                loadFileFromGDrive(doc.id);
-            }
-        }
-    }, {
-        key: 'init',
-        value: function init() {
-            var _this = this;
-
-            document.getElementById('save_btn').addEventListener('click', function () {
-                var fileName = document.getElementById('fileName').value;
-                console.log(fileName);
-                var s = document.getElementById('fileFormat');
-                var fileFormat = s.options[s.selectedIndex].value;
-                s = document.getElementById('savePlace');
-                var savePlace = s.options[s.selectedIndex].value;
-                console.log('savePlace:' + savePlace);
-
-                var promptResult = prompt('File Name', fileName);
-                if (promptResult) {
-                    fileName = promptResult;
-                } else {
-                    console.log("Input fileName canceled.");
-                    return;
-                }
-                fileName = addFileExtension(fileName, fileFormat);
-                console.log('added filename: ' + fileName);
-
-                var content = void 0;
-                var mimeType = void 0;
-                switch (fileFormat) {
-                    case 'dot':
-                        content = EDITOR_INSTANCE.getEditorSession().getDocument().getValue();
-                        mimeType = TEXT_MIME_TYPE;
-                        break;
-                    case 'svg':
-                        content = document.getElementById('graph').innerHTML;
-                        mimeType = SVG_MIME_TYPE;
-                        break;
-                    case 'png':
-                        content = png.src;
-                        mimeType = PNG_MIME_TYPE;
-                        break;
-                }
-                console.log('content');
-                console.log(content);
-                console.log('mimeType');
-                console.log(mimeType);
-
-                switch (savePlace) {
-                    case 'local':
-                        if (fileFormat == 'dot' || fileFormat == 'svg') {
-                            // save file locally (text)
-                            var blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-                            saveAs(blob, fileName);
-                        } else if (fileFormat == 'png') {
-                            var download = document.createElement('a');
-                            download.href = png.src;
-                            download.download = fileName;
-                            download.click();
-                        }
-                        break;
-                    case 'Google Drive':
-                        if (fileFormat == 'png') {
-                            // console.log(content);
-                            var buf = content.split(',')[1];
-                            _this.writeFileToGDrive(fileName + ".png", buf, mimeType);
-                        } else {
-                            _this.writeFileToGDrive(fileName, content, mimeType);
-                        }
-                        break;
-                }
-            });
-
-            // google drive open button
-            document.getElementById('open_btn').addEventListener('click', function () {
-                createPicker();
-            });
-        }
-    }]);
-
-    return GoogleDriveAdapter;
-}();
+        // google drive open button
+        document.getElementById('open_btn').addEventListener('click', function () {
+            createPicker();
+        });
+    };
+};
 
 var INSTANCE = new GoogleDriveAdapter();
 INSTANCE.init();

@@ -4,16 +4,16 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Editor = function () {
-    function Editor() {
-        _classCallCheck(this, Editor);
+var EditorManager = function () {
+    function EditorManager() {
+        _classCallCheck(this, EditorManager);
 
         this.editor = ace.edit("editor");
         this.worker = null;
         this.png = null;
     }
 
-    _createClass(Editor, [{
+    _createClass(EditorManager, [{
         key: "drawGraph",
         value: function drawGraph() {
             console.log("drawGraph called");
@@ -71,9 +71,9 @@ var Editor = function () {
         }
     }]);
 
-    return Editor;
+    return EditorManager;
 }();
 
-var EDITOR_INSTANCE = new Editor();
+var EDITOR_INSTANCE = new EditorManager();
 EDITOR_INSTANCE.run();
 EDITOR_INSTANCE.drawGraph();

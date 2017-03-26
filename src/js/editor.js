@@ -1,4 +1,4 @@
-class Editor {
+class EditorManager {
     constructor() {
         this.editor = ace.edit("editor");
         this.worker = null;
@@ -60,6 +60,6 @@ class Editor {
     }
 }
 
-const EDITOR_INSTANCE = new Editor();
+const EDITOR_INSTANCE = new EditorManager();
 EDITOR_INSTANCE.run();
 EDITOR_INSTANCE.drawGraph();
