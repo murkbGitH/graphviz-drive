@@ -10,31 +10,34 @@
 
 </head>
 <body>
-<nav class="navbar navbar-light" style="background-color: #e3f2fd;">
-<a class="navbar-brand" href="#">Graphviz Drive</a>
+    <nav class="navbar navbar-light" style="background-color: #e3f2fd;">
+        <a class="navbar-brand" href="#">Graphviz Drive</a>
 
-<div class="form-inline float-xs-right">
-	<div class="form-group form-inline">
-	<label for="formatSelect">Save File Format</label>
-	<select class="form-control" id="formatSelect">
-		<option>.dot</option>
-		<option>.svg</option>
-		<option>.png</option>
-	</select>
-	</div>
+        <div class="form-inline float-xs-right">
+            <div class="form-group form-inline">
+                <input id="fileName"type="text" value="Untitled">
+            </div>
+            <div class="form-group form-inline">
+                <label for="formatSelect">Format</label>
+                <select class="form-control" id="fileFormat">
+                    <option>dot</option>
+                    <option>svg</option>
+                    <option>png</option>
+                </select>
+            </div>
 
-	<div class="form-group form-inline">
-		<label for="savePlaceSelect">Save Place</label>
-		<select class="form-control" id="savePlaceSelect">
-			<option>Google Drive</option>
-			<option>local</option>
-		</select>
-	</div>
-	<button type="button" class="btn btn-success" type="submit">Save</button>
-	<button type="button" class="btn btn-success" type="submit">Open</button>
-	<button type="button" class="btn btn-primary" type="submit">Login Google</button>
-</div>
-</nav>
+            <div class="form-group form-inline">
+                <label for="savePlaceSelect">SaveTo</label>
+                <select class="form-control" id="savePlace">
+                    <option>Google Drive</option>
+                    <option>local</option>
+                </select>
+            </div>
+            <button id="save_btn" class="btn btn-success" type="submit">Save</button>
+            <button id="open_btn" class="btn btn-success" type="submit">Open</button>
+            <button id="login_btn" class="btn btn-primary" type="submit">Login Google</button>
+        </div>
+    </nav>
 
 <div class="row">
 	<div class="col-sm-12 col-md-6" id="editor">digraph G {
@@ -73,5 +76,11 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js" integrity="sha384-BLiI7JTZm+JWlgKa0M0kGRpJbF2J8q+qreVrKBC47e3K6BW78kGLrCkeRX6I9RoK" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.5/ace.js" type="text/javascript" charset="utf-8"></script>
 <script src="/js/editor.js" type="text/javascript" charset="utf-8"></script>
+<script src="/js/gdrive.js" type="text/javascript" charset="utf-8"></script>
+<script src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
+<script src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>
+
+
+
 </body>
 </html>

@@ -40,7 +40,7 @@ gulp.task('js', function() {
     return gulp.src(paths.js_src + '**/*.js')
         .pipe(plumber())
         .pipe(babel({ presets: ['es2015'] }))
-        .pipe(uglify())
+        //.pipe(uglify())
         .pipe(gulp.dest(paths.js_dst));
 });
 

@@ -39,6 +39,10 @@ class Editor {
         this.worker.postMessage(arg);
     }
 
+    getEditorSession() {
+        return this.editor.getSession();
+    }
+
     run() {
         this.editor.getSession().setMode("ace/mode/dot");
         this.editor.setShowPrintMargin(false);
@@ -55,5 +59,7 @@ class Editor {
         });
     }
 }
-(new Editor()).run();
-(new Editor()).drawGraph();
+
+const EDITOR_INSTANCE = new Editor();
+EDITOR_INSTANCE.run();
+EDITOR_INSTANCE.drawGraph();
