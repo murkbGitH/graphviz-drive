@@ -300,13 +300,13 @@ var GoogleDriveAdapter = function GoogleDriveAdapter() {
     };
 };
 
-var INSTANCE = new GoogleDriveAdapter();
-INSTANCE.init();
+var GDRIVER_ADAPTER_INSTANCE = new GoogleDriveAdapter();
+GDRIVER_ADAPTER_INSTANCE.init();
 
 function checkAuth() {
-    INSTANCE.checkAuth();
+    GDRIVER_ADAPTER_INSTANCE.checkAuth();
 }
 
 function onApiLoad() {
-    INSTANCE.onApiLoad();
+    GDRIVER_ADAPTER_INSTANCE.onApiLoad();
 }

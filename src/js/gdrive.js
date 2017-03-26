@@ -328,13 +328,13 @@ class GoogleDriveAdapter {
     }
 }
 
-let INSTANCE = new GoogleDriveAdapter();
-INSTANCE.init();
+let GDRIVER_ADAPTER_INSTANCE = new GoogleDriveAdapter();
+GDRIVER_ADAPTER_INSTANCE.init();
 
 function checkAuth() {
-    INSTANCE.checkAuth();
+    GDRIVER_ADAPTER_INSTANCE.checkAuth();
 }
 
 function onApiLoad() {
-    INSTANCE.onApiLoad();
+    GDRIVER_ADAPTER_INSTANCE.onApiLoad();
 }
