@@ -58,7 +58,7 @@ class GoogleDriveAdapter {
     }
 
     // Use the API Loader script to load google.picker and gapi.auth.
-    onApiLoad = () => {
+    onApiLoad() {
         //  window.gapi.load('auth', {'callback': onAuthApiLoad});
         window.gapi.load('picker', {'callback': onPickerApiLoad});
     }

@@ -61,21 +61,25 @@ var GoogleDriveAdapter = function () {
         this.metadataRequest = null;
         this.contentRequest = null;
         this.response = null;
-        // Use the API Loader script to load google.picker and gapi.auth.
-        this.onApiLoad = function () {
-            //  window.gapi.load('auth', {'callback': onAuthApiLoad});
-            window.gapi.load('picker', { 'callback': onPickerApiLoad });
-        };
     }
 
-    /**
-     * Handle response from authorization server.
-     *
-     * @param {Object} authResult Authorization result.
-     */
+    // Use the API Loader script to load google.picker and gapi.auth.
 
 
     _createClass(GoogleDriveAdapter, [{
+        key: 'onApiLoad',
+        value: function onApiLoad() {
+            //  window.gapi.load('auth', {'callback': onAuthApiLoad});
+            window.gapi.load('picker', { 'callback': onPickerApiLoad });
+        }
+
+        /**
+         * Handle response from authorization server.
+         *
+         * @param {Object} authResult Authorization result.
+         */
+
+    }, {
         key: 'handleAuthResult',
         value: function handleAuthResult(authResult) {
             var authorizeDiv = document.getElementById('login_btn');
