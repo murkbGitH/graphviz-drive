@@ -234,6 +234,9 @@ class GoogleDriveAdapter {
                 setCallback(pickerCallback).
                 build();
                 picker.setVisible(true);
+            } else {
+                console(this.pickerApiLoaded);
+                console(this.oauthToken);
             }
         }
 
@@ -284,7 +287,6 @@ class GoogleDriveAdapter {
                         break;
                     case 'png':
                         console.log('file format png');
-                        // TODO use callback for get content
                         mimeType = PNG_MIME_TYPE;
                         break;
                     }
@@ -294,7 +296,6 @@ class GoogleDriveAdapter {
                     console.log(mimeType);
 
                     let dotdata = document.getElementById('viewer').innerHTML;
-
                     switch(savePlace) {
                     case 'local':
                         if (fileFormat == 'dot' || fileFormat == 'svg') {
@@ -302,12 +303,12 @@ class GoogleDriveAdapter {
                             let blob = new Blob([content],  {type: "text/plain;charset=utf-8"});
                             saveAs(blob, fileName);
                         } else if (fileFormat == 'png') {
-                            Viz.svgXmlToPngBase64(
+                            Viz.svgXmlToPngImageElement(
                                 dotdata,
                                 1,
                                 (err, data) => {
                                     let download = document.createElement('a');
-                                    download.href = data;
+                                    download.href = data.src;
                                     download.download = fileName;
                                     download.click();
                                 }
@@ -331,6 +332,7 @@ class GoogleDriveAdapter {
                 }
             );
 
+            let createPicker = this.createPicker;
             // google drive open button
             document.getElementById('open_btn').addEventListener(
                 'click',

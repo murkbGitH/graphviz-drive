@@ -216,6 +216,9 @@ var GoogleDriveAdapter = function GoogleDriveAdapter() {
         if (_this.pickerApiLoaded && _this.oauthToken) {
             var picker = new google.picker.PickerBuilder().addView(google.picker.ViewId.DOCS).setOAuthToken(_this.oauthToken).setDeveloperKey(DEVELOPER_KEY).setCallback(pickerCallback).build();
             picker.setVisible(true);
+        } else {
+            console(_this.pickerApiLoaded);
+            console(_this.oauthToken);
         }
     };
 
@@ -262,7 +265,6 @@ var GoogleDriveAdapter = function GoogleDriveAdapter() {
                     break;
                 case 'png':
                     console.log('file format png');
-                    // TODO use callback for get content
                     mimeType = PNG_MIME_TYPE;
                     break;
             }
@@ -272,7 +274,6 @@ var GoogleDriveAdapter = function GoogleDriveAdapter() {
             console.log(mimeType);
 
             var dotdata = document.getElementById('viewer').innerHTML;
-
             switch (savePlace) {
                 case 'local':
                     if (fileFormat == 'dot' || fileFormat == 'svg') {
@@ -280,9 +281,9 @@ var GoogleDriveAdapter = function GoogleDriveAdapter() {
                         var blob = new Blob([content], { type: "text/plain;charset=utf-8" });
                         saveAs(blob, fileName);
                     } else if (fileFormat == 'png') {
-                        Viz.svgXmlToPngBase64(dotdata, 1, function (err, data) {
+                        Viz.svgXmlToPngImageElement(dotdata, 1, function (err, data) {
                             var download = document.createElement('a');
-                            download.href = data;
+                            download.href = data.src;
                             download.download = fileName;
                             download.click();
                         });
@@ -300,6 +301,7 @@ var GoogleDriveAdapter = function GoogleDriveAdapter() {
             }
         });
 
+        var createPicker = _this.createPicker;
         // google drive open button
         document.getElementById('open_btn').addEventListener('click', function () {
             createPicker();
