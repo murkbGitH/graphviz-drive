@@ -44,8 +44,13 @@ gulp.task('js', function() {
         .pipe(gulp.dest(paths.js_dst));
 });
 
+//gulp.task('lib', function() {
+//    return gulp.src(paths.lib_src + '**/*')
+//        .pipe(gulp.dest(paths.lib_dst));
+//});
+
 gulp.task('lib', function() {
-    return gulp.src(paths.lib_src + '**/*')
+    return gulp.src('./node_modules/viz.js/viz.js')
         .pipe(gulp.dest(paths.lib_dst));
 });
 

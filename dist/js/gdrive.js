@@ -251,15 +251,18 @@ var GoogleDriveAdapter = function GoogleDriveAdapter() {
             var mimeType = void 0;
             switch (fileFormat) {
                 case 'dot':
+                    console.log('file format dot');
                     content = EDITOR_INSTANCE.getEditorSession().getDocument().getValue();
                     mimeType = TEXT_MIME_TYPE;
                     break;
                 case 'svg':
-                    content = document.getElementById('graph').innerHTML;
+                    console.log('file format svg');
+                    content = document.getElementById('viewer').innerHTML;
                     mimeType = SVG_MIME_TYPE;
                     break;
                 case 'png':
-                    content = png.src;
+                    console.log('file format png');
+                    // TODO use callback for get content
                     mimeType = PNG_MIME_TYPE;
                     break;
             }
@@ -268,6 +271,8 @@ var GoogleDriveAdapter = function GoogleDriveAdapter() {
             console.log('mimeType');
             console.log(mimeType);
 
+            var dotdata = document.getElementById('viewer').innerHTML;
+
             switch (savePlace) {
                 case 'local':
                     if (fileFormat == 'dot' || fileFormat == 'svg') {
@@ -275,17 +280,19 @@ var GoogleDriveAdapter = function GoogleDriveAdapter() {
                         var blob = new Blob([content], { type: "text/plain;charset=utf-8" });
                         saveAs(blob, fileName);
                     } else if (fileFormat == 'png') {
-                        var download = document.createElement('a');
-                        download.href = png.src;
-                        download.download = fileName;
-                        download.click();
+                        Viz.svgXmlToPngBase64(dotdata, 1, function (err, data) {
+                            var download = document.createElement('a');
+                            download.href = data;
+                            download.download = fileName;
+                            download.click();
+                        });
                     }
                     break;
                 case 'Google Drive':
                     if (fileFormat == 'png') {
-                        // console.log(content);
-                        var buf = content.split(',')[1];
-                        _this.writeFileToGDrive(fileName + ".png", buf, mimeType);
+                        Viz.svgXmlToPngBase64(dotdata, 1, function (err, data) {
+                            _this.writeFileToGDrive(fileName, data, mimeType);
+                        });
                     } else {
                         _this.writeFileToGDrive(fileName, content, mimeType);
                     }
