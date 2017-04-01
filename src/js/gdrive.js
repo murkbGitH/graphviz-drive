@@ -58,7 +58,7 @@ class GoogleDriveAdapter {
         // Use the API Loader script to load google.picker and gapi.auth.
         this.onApiLoad = () => {
             //  window.gapi.load('auth', {'callback': onAuthApiLoad});
-            window.gapi.load('picker', {'callback': onPickerApiLoad});
+            window.gapi.load('picker', {'callback': this.onPickerApiLoad});
         }
 
         /**
@@ -71,7 +71,7 @@ class GoogleDriveAdapter {
             if (authResult && !authResult.error) {
                 // Hide auth UI, then load client library.
                 authorizeDiv.style.display = 'none';
-                oauthToken = authResult.access_token;
+                this.oauthToken = authResult.access_token;
             } else {
                 // Show auth UI, allowing the user to initiate authorization by
                 // clicking authorize button.
@@ -156,6 +156,7 @@ class GoogleDriveAdapter {
         }
 
         this.onPickerApiLoad = () => {
+            console.log('onPickerApiLoad');
             this.pickerApiLoaded = true;
         }
 
@@ -231,12 +232,12 @@ class GoogleDriveAdapter {
                 addView(google.picker.ViewId.DOCS).
                 setOAuthToken(this.oauthToken).
                 setDeveloperKey(DEVELOPER_KEY).
-                setCallback(pickerCallback).
+                setCallback(this.pickerCallback).
                 build();
                 picker.setVisible(true);
             } else {
-                console(this.pickerApiLoaded);
-                console(this.oauthToken);
+                console.log(this.pickerApiLoaded);
+                console.log(this.oauthToken);
             }
         }
 

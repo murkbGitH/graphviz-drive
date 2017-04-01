@@ -63,7 +63,7 @@ var GoogleDriveAdapter = function GoogleDriveAdapter() {
     // Use the API Loader script to load google.picker and gapi.auth.
     this.onApiLoad = function () {
         //  window.gapi.load('auth', {'callback': onAuthApiLoad});
-        window.gapi.load('picker', { 'callback': onPickerApiLoad });
+        window.gapi.load('picker', { 'callback': _this.onPickerApiLoad });
     };
 
     /**
@@ -76,7 +76,7 @@ var GoogleDriveAdapter = function GoogleDriveAdapter() {
         if (authResult && !authResult.error) {
             // Hide auth UI, then load client library.
             authorizeDiv.style.display = 'none';
-            oauthToken = authResult.access_token;
+            _this.oauthToken = authResult.access_token;
         } else {
             // Show auth UI, allowing the user to initiate authorization by
             // clicking authorize button.
@@ -149,6 +149,7 @@ var GoogleDriveAdapter = function GoogleDriveAdapter() {
     };
 
     this.onPickerApiLoad = function () {
+        console.log('onPickerApiLoad');
         _this.pickerApiLoaded = true;
     };
 
@@ -214,11 +215,11 @@ var GoogleDriveAdapter = function GoogleDriveAdapter() {
      */
     this.createPicker = function () {
         if (_this.pickerApiLoaded && _this.oauthToken) {
-            var picker = new google.picker.PickerBuilder().addView(google.picker.ViewId.DOCS).setOAuthToken(_this.oauthToken).setDeveloperKey(DEVELOPER_KEY).setCallback(pickerCallback).build();
+            var picker = new google.picker.PickerBuilder().addView(google.picker.ViewId.DOCS).setOAuthToken(_this.oauthToken).setDeveloperKey(DEVELOPER_KEY).setCallback(_this.pickerCallback).build();
             picker.setVisible(true);
         } else {
-            console(_this.pickerApiLoaded);
-            console(_this.oauthToken);
+            console.log(_this.pickerApiLoaded);
+            console.log(_this.oauthToken);
         }
     };
 
