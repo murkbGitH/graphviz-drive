@@ -16,7 +16,7 @@ const paths = {
     js_src: 'src/js/',
     js_dst: 'dist/js/',
     lib_src: 'src/lib/',
-    lib_dst: 'dist/lib/'
+    lib_dst: 'dist/lib/',
     dist: 'dist/'
 }
 
