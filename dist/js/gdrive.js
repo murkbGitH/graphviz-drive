@@ -171,6 +171,7 @@ var GoogleDriveAdapter = function GoogleDriveAdapter() {
      * @param {Event} event Button click event.
      */
     this.handleAuthClick = function (event) {
+        console.log('handleAuthClick');
         gapi.auth.authorize({
             client_id: CLIENT_ID,
             scope: SCOPES,
@@ -307,6 +308,10 @@ var GoogleDriveAdapter = function GoogleDriveAdapter() {
         document.getElementById('open_btn').addEventListener('click', function () {
             createPicker();
         });
+
+        document.getElementById('login_btn').addEventListener('click', function (event) {
+            handleAuthClick(event);
+        });
     };
 };
 
@@ -319,4 +324,8 @@ function checkAuth() {
 
 function onApiLoad() {
     GDRIVER_ADAPTER_INSTANCE.onApiLoad();
+}
+
+function handleAuthClick(event) {
+    GDRIVER_ADAPTER_INSTANCE.handleAuthClick(event);
 }

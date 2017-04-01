@@ -17,6 +17,7 @@ const paths = {
     js_dst: 'dist/js/',
     lib_src: 'src/lib/',
     lib_dst: 'dist/lib/'
+    dist: 'dist/'
 }
 
 gulp.task('scss', function() {
@@ -52,6 +53,11 @@ gulp.task('js', function() {
 gulp.task('lib', function() {
     return gulp.src('./node_modules/viz.js/viz.js')
         .pipe(gulp.dest(paths.lib_dst));
+});
+
+gulp.task('favicon', function() {
+    return gulp.src('favicon.ico')
+        .pipe(gulp.dest(paths.dist));
 });
 
 gulp.task('default', ['scss', 'html', 'js', 'lib']);

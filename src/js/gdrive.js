@@ -181,6 +181,7 @@ class GoogleDriveAdapter {
          * @param {Event} event Button click event.
          */
         this.handleAuthClick = (event) => {
+            console.log('handleAuthClick');
             gapi.auth.authorize(
                 {
                     client_id: CLIENT_ID,
@@ -341,6 +342,13 @@ class GoogleDriveAdapter {
                     createPicker();
                 }
             );
+
+            document.getElementById('login_btn').addEventListener(
+                'click',
+                (event) => {
+                    handleAuthClick(event);
+                }
+            );
         }
     }
 }
@@ -354,4 +362,8 @@ function checkAuth() {
 
 function onApiLoad() {
     GDRIVER_ADAPTER_INSTANCE.onApiLoad();
+}
+
+function handleAuthClick(event) {
+    GDRIVER_ADAPTER_INSTANCE.handleAuthClick(event);
 }
